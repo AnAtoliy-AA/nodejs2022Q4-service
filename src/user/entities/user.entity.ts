@@ -17,20 +17,27 @@ export class User {
   version: number;
 
   @ApiProperty({ description: 'User timestamp of creation', nullable: false })
-  createdAt: string;
+  createdAt: number;
 
   @ApiProperty({
     description: 'User timestamp of last update',
     nullable: false,
   })
-  updatedAt: string;
+  updatedAt: number;
 
-  constructor(id: string, login, password, version, createdAt, updatedAt) {
+  constructor(
+    id: string,
+    login: string,
+    password: string,
+    version: number,
+    createdAt: number,
+    updatedAt: number,
+  ) {
     this.id = id;
     this.login = login;
     this.password = password;
     this.version = version;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.createdAt = +createdAt;
+    this.updatedAt = +updatedAt;
   }
 }

@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   HttpStatus,
+  HttpCode,
+  HttpException,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,8 +23,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     description: 'Successful',
     type: User,
   })
@@ -51,29 +55,42 @@ export class UserController {
     type: User,
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+    status: HttpStatus.ACCEPTED,
     description: 'Not valid user id',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'User not found.',
+  })
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return this.userService.getById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: 'Updates a user with specified id' })
   @ApiParam({ name: 'id', required: true, description: 'User identifier' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully updated',
-    type: User,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    if (!updateUserDto.newPassword || !updateUserDto.oldPassword) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'incorrect newPassword of  oldPassword.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'No content' })
+  delete(@Param('id') id: string) {
+    return this.userService.delete(id);
   }
 }

@@ -15,7 +15,7 @@ export class UserService {
 
   create(dto: CreateUserDto) {
     const { login, password } = dto;
-    if (!login && !password) {
+    if (!login || !password) {
       throw new HttpException(
         'Empty login or password fields',
         HttpStatus.BAD_REQUEST,
@@ -24,17 +24,13 @@ export class UserService {
 
     const id = uuidv4();
     const version = 1;
-    const createdAt: string = new Date(Date.now()).toDateString();
-    const updatedAt: string = new Date(Date.now()).toDateString();
-    const user = new User(
-      id,
-      dto.login,
-      dto.password,
-      version,
-      createdAt,
-      updatedAt,
-    );
+    const createdAt: number = new Date().getTime();
+    const updatedAt: number = new Date().getTime();
+    const user = new User(id, login, password, version, createdAt, updatedAt);
     this._users.push(user);
+    const result = { ...user };
+    delete result.password;
+    return result;
     return user;
   }
 
@@ -42,11 +38,19 @@ export class UserService {
     return this._users;
   }
 
-  findOne(userId: string) {
+  getById(userId: string) {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    return this._users.filter((user) => user.id == userId);
+    const findUser = this._users.find((user) => user.id === userId);
+
+    if (!findUser) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const result = { ...findUser };
+    delete result.password;
+    return result;
   }
 
   update(userUniqueId: string, dto: UpdateUserDto) {
@@ -54,37 +58,48 @@ export class UserService {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
 
+    if (!dto.newPassword || !dto.oldPassword) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'incorrect newPassword or oldPassword.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const index = this._users.findIndex((user) => user.id == userUniqueId);
 
     if (index === -1) {
-      throw new HttpException('User not found.', HttpStatus.BAD_REQUEST);
+      throw new NotFoundException('User not found.');
     }
     const { id, login, password, version, createdAt } = this._users[index];
 
     if (dto.oldPassword !== password) {
-      throw new HttpException(
-        'Not correct old password',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Not correct old password', HttpStatus.FORBIDDEN);
     }
-    const updatedAt: string = new Date(Date.now()).toDateString();
+    const updatedAt: number = new Date().getTime();
 
     this._users[index] = new User(
       id,
       login,
-      dto.password,
+      dto.newPassword,
       version + 1,
       createdAt,
       updatedAt,
     );
-    return this._users[index];
+
+    const response = { ...this._users[index] };
+    delete response.password;
+
+    return response;
   }
 
-  remove(userId: string) {
+  delete(userId: string) {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    const filteredUsers = this._users.filter((user) => user.id != userId);
+    const filteredUsers = this._users.filter((user) => user.id !== userId);
 
     if (this._users.length !== filteredUsers.length) {
       this._users = filteredUsers;
