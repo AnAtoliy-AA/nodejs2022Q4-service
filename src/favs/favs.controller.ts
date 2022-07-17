@@ -14,8 +14,8 @@ export class FavsController {
   }
 
   @Get('/album')
-  findAllAlbums() {
-    return this.favsService.findAllAlbums();
+  get() {
+    return this.favsService.get();
   }
 
   @Delete('/album:id')
@@ -45,7 +45,7 @@ export class FavsController {
 
   @Get('/track')
   findAllTracks() {
-    return this.favsService.findAllTracks();
+    return this.favsService.get();
   }
 
   @Delete('/track:id')

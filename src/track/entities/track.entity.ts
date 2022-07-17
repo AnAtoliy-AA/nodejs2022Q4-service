@@ -46,7 +46,7 @@ export class Track {
     this.id = id;
     this.name = name;
     this.artistId = artistId;
-    this.albumId = this.albumId;
+    this.albumId = albumId;
     this.duration = duration;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

@@ -26,8 +26,8 @@ export class TrackService {
     const track = new Track(
       id,
       name,
-      artistId,
-      albumId,
+      artistId || null,
+      albumId || null,
       duration,
       createdAt,
       updatedAt,
@@ -40,11 +40,18 @@ export class TrackService {
     return this._tracks;
   }
 
-  findOne(trackId: string) {
+  getById(trackId: string) {
     if (!validate(trackId)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
-    return this._tracks.filter((track) => track.id == trackId);
+
+    const findTrack = this._tracks.find((track) => track.id == trackId);
+
+    if (!findTrack) {
+      throw new NotFoundException('User not found.');
+    }
+
+    return findTrack;
   }
 
   update(trackUniqueId: string, dto: UpdateTrackDto) {
@@ -58,6 +65,16 @@ export class TrackService {
       throw new NotFoundException('Track not found.');
     }
 
+    if (!dto.name || typeof dto.duration !== 'number') {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'incorrect newPassword or oldPassword.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const { id, name, artistId, albumId, duration, createdAt } =
       this._tracks[index];
 
@@ -65,17 +82,17 @@ export class TrackService {
 
     this._tracks[index] = new Track(
       id,
-      name,
-      artistId,
-      albumId,
-      duration,
+      dto.name || name,
+      dto.artistId || artistId || null,
+      dto.albumId || albumId || null,
+      dto.duration || duration,
       createdAt,
       updatedAt,
     );
     return this._tracks[index];
   }
 
-  remove(trackId: string) {
+  delete(trackId: string) {
     if (!validate(trackId)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }

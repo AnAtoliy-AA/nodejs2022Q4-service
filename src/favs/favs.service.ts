@@ -24,7 +24,7 @@ export class FavsService {
     return id;
   }
 
-  findAllTracks() {
+  get() {
     return this._tracks;
   }
 

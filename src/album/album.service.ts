@@ -28,15 +28,21 @@ export class AlbumService {
     return album;
   }
 
-  findAll() {
+  get() {
     return this._albums;
   }
 
-  findOne(albumId: string) {
+  getById(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
-    return this._albums.filter((album) => album.id == albumId);
+    const findAlbum = this._albums.find((user) => user.id === albumId);
+
+    if (!findAlbum) {
+      throw new NotFoundException('User not found.');
+    }
+
+    return findAlbum;
   }
 
   update(albumUniqueId: string, dto: UpdateAlbumDto) {
@@ -52,11 +58,16 @@ export class AlbumService {
 
     const { id, name, artistId, year } = this._albums[index];
 
-    this._albums[index] = new Album(id, name, year, artistId);
+    this._albums[index] = new Album(
+      id,
+      dto.name || name,
+      dto.year || year,
+      dto.artistId || artistId || null,
+    );
     return this._albums[index];
   }
 
-  remove(albumId: string) {
+  delete(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }

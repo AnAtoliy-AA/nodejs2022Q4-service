@@ -32,7 +32,7 @@ export class ArtistService {
     return this._artists;
   }
 
-  findOne(artistId: string) {
+  getById(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
@@ -58,7 +58,7 @@ export class ArtistService {
     return this._artists[index];
   }
 
-  remove(artistId: string) {
+  delete(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }

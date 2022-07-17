@@ -3,12 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpStatus,
   HttpCode,
-  HttpException,
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -75,15 +73,6 @@ export class UserController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    if (!updateUserDto.newPassword || !updateUserDto.oldPassword) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'incorrect newPassword of  oldPassword.',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     return this.userService.update(id, updateUserDto);
   }
 
