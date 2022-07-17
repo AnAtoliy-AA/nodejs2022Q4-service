@@ -44,20 +44,24 @@ export class UserController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user with specified id' })
-  @ApiParam({ name: 'userId', required: true, description: 'User identifier' })
+  @ApiParam({ name: 'id', required: true, description: 'User identifier' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successful',
     type: User,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Not valid user id',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Updates a user with specified id' })
-  @ApiParam({ name: 'userId', required: true, description: 'User identifier' })
+  @ApiParam({ name: 'id', required: true, description: 'User identifier' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully updated',

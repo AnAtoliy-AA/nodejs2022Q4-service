@@ -1,14 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate } from 'uuid';
 
 @Injectable()
 export class UserService {
   private _users: User[] = [];
 
   create(dto: CreateUserDto) {
+    const { login, password } = dto;
+    if (!login && !password) {
+      throw new HttpException(
+        'Empty login or password fields',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const id = uuidv4();
     const version = 1;
     const createdAt: string = new Date(Date.now()).toDateString();
@@ -30,16 +43,27 @@ export class UserService {
   }
 
   findOne(userId: string) {
+    if (!validate(userId)) {
+      throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
+    }
     return this._users.filter((user) => user.id == userId);
   }
 
   update(userUniqueId: string, dto: UpdateUserDto) {
+    if (!validate(userUniqueId)) {
+      throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
+    }
+
     const index = this._users.findIndex((user) => user.id == userUniqueId);
 
     if (index === -1) {
-      return;
+      throw new NotFoundException('User not found.');
     }
-    const { id, login, version, createdAt } = this._users[index];
+    const { id, login, password, version, createdAt } = this._users[index];
+
+    if (dto.oldPassword !== password) {
+      throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
+    }
     const updatedAt: string = new Date(Date.now()).toDateString();
 
     this._users[index] = new User(
@@ -54,6 +78,15 @@ export class UserService {
   }
 
   remove(userId: string) {
-    this._users = this._users.filter((user) => user.id != userId);
+    if (!validate(userId)) {
+      throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
+    }
+    const filteredUsers = this._users.filter((user) => user.id != userId);
+
+    if (this._users.length !== filteredUsers.length) {
+      this._users = filteredUsers;
+    } else {
+      throw new NotFoundException('User not found.');
+    }
   }
 }
