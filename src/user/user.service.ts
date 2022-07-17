@@ -57,12 +57,15 @@ export class UserService {
     const index = this._users.findIndex((user) => user.id == userUniqueId);
 
     if (index === -1) {
-      throw new NotFoundException('User not found.');
+      throw new HttpException('User not found.', HttpStatus.BAD_REQUEST);
     }
     const { id, login, password, version, createdAt } = this._users[index];
 
     if (dto.oldPassword !== password) {
-      throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Not correct old password',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const updatedAt: string = new Date(Date.now()).toDateString();
 
