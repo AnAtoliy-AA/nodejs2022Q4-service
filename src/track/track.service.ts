@@ -40,15 +40,18 @@ export class TrackService {
     return this._tracks;
   }
 
-  getById(trackId: string) {
-    if (!validate(trackId)) {
+  private validateId(id: string) {
+    if (!validate(id)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
+  }
 
+  getById(trackId: string) {
+    this.validateId(trackId);
     const findTrack = this._tracks.find((track) => track.id == trackId);
 
     if (!findTrack) {
-      throw new NotFoundException('User not found.');
+      throw new NotFoundException('Track not found.');
     }
 
     return findTrack;
@@ -102,6 +105,22 @@ export class TrackService {
       this._tracks = filteredTracks;
     } else {
       throw new NotFoundException('Track not found.');
+    }
+  }
+
+  resetAlbumId(trackId: string, albumId: string) {
+    const track = this.getById(trackId);
+
+    if (track.albumId === albumId) {
+      track.albumId = null;
+    }
+  }
+
+  resetArtistId(trackId: string, artistId: string) {
+    const track = this.getById(trackId);
+
+    if (track.artistId === artistId) {
+      track.artistId = null;
     }
   }
 }

@@ -36,12 +36,28 @@ export class ArtistService {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
-    return this._artists.filter((artist) => artist.id == artistId);
+    const artist = this._artists.filter((artist) => artist.id == artistId);
+
+    if (!artist) {
+      throw new NotFoundException('Artist not found.');
+    }
+
+    return artist;
   }
 
   update(artistUniqueId: string, dto: UpdateArtistDto) {
     if (!validate(artistUniqueId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
+    }
+
+    if (typeof dto.name !== 'string' || typeof dto.grammy !== 'boolean') {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'incorrect newPassword or oldPassword.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const index = this._artists.findIndex(
@@ -54,7 +70,11 @@ export class ArtistService {
 
     const { id, name, grammy } = this._artists[index];
 
-    this._artists[index] = new Artist(id, name, grammy);
+    this._artists[index] = new Artist(
+      id,
+      dto.name || name,
+      dto.grammy || grammy,
+    );
     return this._artists[index];
   }
 

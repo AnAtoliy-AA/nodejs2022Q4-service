@@ -14,7 +14,7 @@ export class Album {
   artistId: string | null;
 
   @ApiProperty({
-    description: 'Album duration integer number, increments on update',
+    description: 'Album duration integer number',
     nullable: false,
   })
   year: number;

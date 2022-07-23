@@ -56,6 +56,16 @@ export class AlbumService {
       throw new NotFoundException('album not found.');
     }
 
+    if (!dto.name || typeof dto.year !== 'number') {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'incorrect newPassword or oldPassword.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const { id, name, artistId, year } = this._albums[index];
 
     this._albums[index] = new Album(
