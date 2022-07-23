@@ -1,55 +1,68 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
 import { FavsService } from './favs.service';
 import { CreateFavDto } from './dto/create-fav.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { TrackService } from 'src/track/track.service';
+import { ArtistService } from 'src/artist/artist.service';
+import { AlbumService } from 'src/album/album.service';
 
 @ApiTags('Favourites')
 @Controller('favs')
 export class FavsController {
-  constructor(private readonly favsService: FavsService) {}
+  constructor(
+    private readonly favsService: FavsService,
+    private readonly trackService: TrackService,
+    private readonly artistService: ArtistService,
+    private readonly albumService: AlbumService,
+  ) {}
 
-  @Post('/album')
-  createAlbum(@Body() createFavDto: CreateFavDto) {
-    return this.favsService.createAlbum(createFavDto);
+  @Get()
+  findAll() {
+    const tracks = this.trackService.findAll();
+    const artists = this.artistService.findAll();
+    const albums = this.albumService.findAll();
+    return this.favsService.findAll(tracks, artists, albums);
   }
 
-  @Get('/album')
-  get() {
-    return this.favsService.get();
+  // track
+  @Post('track/:id')
+  createTrack(@Param() id: string) {
+    const tracks = this.trackService.findAll();
+    return this.favsService.addTrack(id, tracks);
   }
 
-  @Delete('/album:id')
-  removeAlbum(@Param('id') id: string) {
-    return this.favsService.removeAlbum(id);
+  @Delete('track/:id')
+  @HttpCode(204)
+  removeTrack(@Param() id: string) {
+    const tracks = this.trackService.findAll();
+    return this.favsService.removeTrack(id, tracks);
   }
 
-  @Post('/artist')
-  createArtist(@Body() createFavDto: CreateFavDto) {
-    return this.favsService.createArtist(createFavDto);
+  // artist
+  @Post('artist/:id')
+  createArtist(@Param() id: string) {
+    const artists = this.artistService.findAll();
+    return this.favsService.addArtist(id, artists);
   }
 
-  @Get('/artist')
-  findAllArtists() {
-    return this.favsService.findAllArtists();
+  @Delete('artist/:id')
+  @HttpCode(204)
+  removeArtist(@Param() id: string) {
+    const artists = this.artistService.findAll();
+    return this.favsService.removeArtist(id, artists);
   }
 
-  @Delete('/artist:id')
-  removeArtist(@Param('id') id: string) {
-    return this.favsService.removeArtist(id);
+  // album
+  @Post('album/:id')
+  addAlbum(@Param() id: string) {
+    const albums = this.albumService.findAll();
+    return this.favsService.addAlbum(id, albums);
   }
 
-  @Post('/track')
-  createTrack(@Body() createFavDto: CreateFavDto) {
-    return this.favsService.createTrack(createFavDto);
-  }
-
-  @Get('/track')
-  findAllTracks() {
-    return this.favsService.get();
-  }
-
-  @Delete('/track:id')
-  removeTrack(@Param('id') id: string) {
-    return this.favsService.removeTrack(id);
+  @Delete('album/:id')
+  @HttpCode(204)
+  removeAlbum(@Param() id: string) {
+    const albums = this.albumService.findAll();
+    return this.favsService.removeAlbum(id, albums);
   }
 }

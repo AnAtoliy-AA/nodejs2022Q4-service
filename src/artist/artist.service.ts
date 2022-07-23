@@ -36,7 +36,7 @@ export class ArtistService {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
-    const artist = this._artists.filter((artist) => artist.id == artistId);
+    const artist = this._artists.find((artist) => artist.id == artistId);
 
     if (!artist) {
       throw new NotFoundException('Artist not found.');

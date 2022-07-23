@@ -1,12 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Album } from 'src/album/entities/album.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
+import { Track } from 'src/track/entities/track.entity';
 
-export class Fav {
-  @ApiProperty({ description: 'Tracks', nullable: false })
-  tracks: string[];
+export interface Favorites {
+  artistsIds: Array<string>;
+  albumsIds: Array<string>;
+  tracksIds: Array<string>;
+}
 
-  @ApiProperty({ description: 'Albums', nullable: false })
-  albums: string[];
+export interface FavoritesResponse {
+  artists: Array<Artist>;
+  albums: Array<Album>;
+  tracks: Array<Track>;
+}
 
-  @ApiProperty({ description: 'Artists', nullable: false })
-  artists: string[];
+export interface Resource {
+  data: Array<Artist | Album | Track>;
+  type: string;
 }

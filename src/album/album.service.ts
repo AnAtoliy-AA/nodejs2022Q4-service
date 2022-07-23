@@ -28,7 +28,7 @@ export class AlbumService {
     return album;
   }
 
-  get() {
+  findAll() {
     return this._albums;
   }
 
@@ -39,7 +39,7 @@ export class AlbumService {
     const findAlbum = this._albums.find((user) => user.id === albumId);
 
     if (!findAlbum) {
-      throw new NotFoundException('User not found.');
+      throw new NotFoundException('Album not found.');
     }
 
     return findAlbum;
