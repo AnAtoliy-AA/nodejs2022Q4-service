@@ -1,10 +1,10 @@
-FROM node:16.13.0  As development
+FROM node:18.14.0  As development
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
-FROM node:16.13.0 as production
+FROM node:18.14.0 as production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
