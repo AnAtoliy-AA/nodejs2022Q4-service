@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -22,11 +27,11 @@ export class User {
   })
   version: number;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   @ApiProperty({ description: 'User timestamp of creation', nullable: false })
   createdAt: number;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   @ApiProperty({
     description: 'User timestamp of last update',
     nullable: false,

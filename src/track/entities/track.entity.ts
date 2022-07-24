@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Album } from 'src/album/entities/album.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Track {
@@ -12,6 +20,7 @@ export class Track {
   name: string;
 
   @Column()
+  @OneToOne(() => Artist, { eager: true })
   @ApiProperty({
     description: 'Track artistId refers to Artist',
     nullable: true,
@@ -19,6 +28,7 @@ export class Track {
   artistId: string | null;
 
   @Column()
+  @OneToOne(() => Album, { eager: true })
   @ApiProperty({
     description: 'Track albumId refers to Album',
     nullable: true,
@@ -32,11 +42,11 @@ export class Track {
   })
   duration: number;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   @ApiProperty({ description: 'Track timestamp of creation', nullable: false })
   createdAt: string;
 
-  @Column()
+  @CreateDateColumn({ type: 'timestamp' })
   @ApiProperty({
     description: 'Track timestamp of last update',
     nullable: false,
