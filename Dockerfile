@@ -7,10 +7,7 @@ WORKDIR /app
 COPY ./package.json ./package-lock.json /app/
 
 # Then install the NPM module
-RUN npm ci --legacy-peer-deps
-
-COPY . .
-RUN npm run build
+RUN npm install
 
 COPY . .
 RUN npm run build

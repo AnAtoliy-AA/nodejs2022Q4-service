@@ -10,6 +10,7 @@ import { FavsModule } from './favs/favs.module';
 import { DatabaseModule } from './database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configService from './ormconfig';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import configService from './ormconfig';
       envFilePath: '../.env',
     }),
     DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
