@@ -1,28 +1,33 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Track } from 'src/track/entities/track.entity';
-import { Artist } from 'src/artist/entities/artist.entity';
-import { Album } from 'src/album/entities/album.entity';
-import { Favorites, FavoritesResponse, Resource } from './entities/fav.entity';
+import { FavoritesResponse, Resource } from './entities/fav.entity';
 import { DataObj } from 'src/data';
+import { AlbumService } from 'src/album/album.service';
+import { ArtistService } from 'src/artist/artist.service';
+import { TrackService } from 'src/track/track.service';
+import { validate } from 'uuid';
 
 @Injectable()
 export class FavsService {
-  favoritesData: Favorites = DataObj.favoritesData;
+  constructor(
+    private readonly trackService: TrackService,
+    private readonly artistService: ArtistService,
+    private readonly albumService: AlbumService,
+  ) {}
 
-  findAll(
-    tracks: Track[],
-    artists: Artist[],
-    albums: Album[],
-  ): FavoritesResponse {
+  async findAll(): Promise<FavoritesResponse> {
+    const artists = await this.artistService.findAll();
+    const albums = this.albumService.findAll();
+    const tracks = this.trackService.findAll();
+
     return {
       artists: artists.filter((artist) =>
-        this.favoritesData.artistsIds.includes(artist.id),
+        DataObj.favoritesData.artistsIds.includes(artist.id),
       ),
       albums: albums.filter((album) =>
-        this.favoritesData.albumsIds.includes(album.id),
+        DataObj.favoritesData.albumsIds.includes(album.id),
       ),
       tracks: tracks.filter((track) =>
-        this.favoritesData.tracksIds.includes(track.id),
+        DataObj.favoritesData.tracksIds.includes(track.id),
       ),
     };
   }
@@ -53,70 +58,87 @@ export class FavsService {
     return true;
   }
 
-  addTrack(id: string, tracks: Track[]) {
-    const track = this.validateResourceAndGetById(id, {
-      data: tracks,
-      type: 'track',
-    }) as Track;
+  addTrack(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
 
-    this.favoritesData.tracksIds.push(id);
+    const track = this.trackService
+      ?.findAll()
+      ?.find((_track) => _track?.id === id);
 
-    return track;
+    if (track) {
+      DataObj.favoritesData.tracksIds.push(id);
+    } else {
+      throw new HttpException(
+        "Entity doesn't exist",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 
-  removeTrack(id: string, tracks: Track[]) {
-    this.validateResourceAndDeleteById(id, {
-      data: tracks,
-      type: 'track',
-    });
-
-    this.favoritesData.tracksIds = this.favoritesData.tracksIds.filter(
+  removeTrack(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
+    DataObj.favoritesData.tracksIds = DataObj.favoritesData.tracksIds.filter(
       (trackId) => trackId !== id,
     );
   }
 
   // artist
-  addArtist(id: string, artists: Artist[]) {
-    const artist = this.validateResourceAndGetById(id, {
-      data: artists,
-      type: 'artist',
-    }) as Artist;
+  async addArtist(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
 
-    this.favoritesData.artistsIds.push(id);
+    const artist = (await this.artistService?.findAll())?.find(
+      (_artist) => _artist?.id === id,
+    );
 
-    return artist;
+    if (artist) {
+      DataObj.favoritesData.artistsIds.push(id);
+    } else {
+      throw new HttpException(
+        "Entity doesn't exist",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 
-  removeArtist(id: string, artists: Artist[]) {
-    this.validateResourceAndDeleteById(id, {
-      data: artists,
-      type: 'artist',
-    });
-
-    this.favoritesData.artistsIds = this.favoritesData.artistsIds.filter(
+  removeArtist(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
+    DataObj.favoritesData.artistsIds = DataObj.favoritesData.artistsIds.filter(
       (artistId) => artistId !== id,
     );
   }
 
   // album
-  addAlbum(id: string, albums: Album[]) {
-    const album = this.validateResourceAndGetById(id, {
-      data: albums,
-      type: 'album',
-    }) as Album;
+  addAlbum(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
 
-    this.favoritesData.albumsIds.push(id);
-
-    return album;
+    const album = this.albumService
+      ?.findAll()
+      ?.find((_album) => _album?.id === id);
+    if (album) {
+      DataObj.favoritesData.albumsIds.push(id);
+    } else {
+      throw new HttpException(
+        "Entity doesn't exist",
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
   }
 
-  removeAlbum(id: string, albums: Album[]) {
-    this.validateResourceAndDeleteById(id, {
-      data: albums,
-      type: 'album',
-    });
-
-    this.favoritesData.albumsIds = this.favoritesData.albumsIds.filter(
+  removeAlbum(id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
+    }
+    DataObj.favoritesData.albumsIds = DataObj.favoritesData.albumsIds.filter(
       (albumId) => albumId !== id,
     );
   }

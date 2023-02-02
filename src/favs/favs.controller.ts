@@ -1,68 +1,74 @@
-import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { FavsService } from './favs.service';
-import { CreateFavDto } from './dto/create-fav.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { TrackService } from 'src/track/track.service';
-import { ArtistService } from 'src/artist/artist.service';
-import { AlbumService } from 'src/album/album.service';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Favourites')
 @Controller('favs')
 export class FavsController {
-  constructor(
-    private readonly favsService: FavsService,
-    private readonly trackService: TrackService,
-    private readonly artistService: ArtistService,
-    private readonly albumService: AlbumService,
-  ) {}
+  constructor(private readonly favsService: FavsService) { }
 
   @Get()
   findAll() {
-    const tracks = this.trackService.findAll();
-    const artists = this.artistService.findAll();
-    const albums = this.albumService.findAll();
-    return this.favsService.findAll(tracks, artists, albums);
+    return this.favsService.findAll();
   }
 
   // track
   @Post('track/:id')
-  createTrack(@Param() id: string) {
-    const tracks = this.trackService.findAll();
-    return this.favsService.addTrack(id, tracks);
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Successful',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  createTrack(@Param() track: { id: string }) {
+    // const tracks = this.trackService.findAll();
+    return this.favsService.addTrack(track?.id);
   }
 
   @Delete('track/:id')
   @HttpCode(204)
-  removeTrack(@Param() id: string) {
-    const tracks = this.trackService.findAll();
-    return this.favsService.removeTrack(id, tracks);
+  removeTrack(@Param() track: { id: string }) {
+    return this.favsService.removeTrack(track?.id);
   }
 
   // artist
   @Post('artist/:id')
-  createArtist(@Param() id: string) {
-    const artists = this.artistService.findAll();
-    return this.favsService.addArtist(id, artists);
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Successful',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  createArtist(@Param() artist: { id: string }) {
+    return this.favsService.addArtist(artist?.id);
   }
 
   @Delete('artist/:id')
   @HttpCode(204)
-  removeArtist(@Param() id: string) {
-    const artists = this.artistService.findAll();
-    return this.favsService.removeArtist(id, artists);
+  removeArtist(@Param() artist: { id: string }) {
+    return this.favsService.removeArtist(artist?.id);
   }
 
   // album
   @Post('album/:id')
-  addAlbum(@Param() id: string) {
-    const albums = this.albumService.findAll();
-    return this.favsService.addAlbum(id, albums);
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Successful',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  addAlbum(@Param() album: { id: string }) {
+    return this.favsService.addAlbum(album?.id);
   }
 
   @Delete('album/:id')
   @HttpCode(204)
-  removeAlbum(@Param() id: string) {
-    const albums = this.albumService.findAll();
-    return this.favsService.removeAlbum(id, albums);
+  removeAlbum(@Param() album: { id: string }) {
+    return this.favsService.removeAlbum(album?.id);
   }
 }

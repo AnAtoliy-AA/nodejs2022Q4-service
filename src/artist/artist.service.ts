@@ -13,8 +13,6 @@ import { DataObj } from 'src/data';
 
 @Injectable()
 export class ArtistService {
-  artistsData: Artist[] = DataObj.artistsData;
-
   constructor(private readonly trackService: TrackService) {}
 
   create(dto: CreateArtistDto) {
@@ -25,22 +23,21 @@ export class ArtistService {
     }
 
     const id = uuidv4();
-    const createdAt: string = new Date(Date.now()).toDateString();
-    const updatedAt: string = new Date(Date.now()).toDateString();
     const artist = new Artist(id, name, grammy);
-    this.artistsData.push(artist);
+    DataObj.artistsData.push(artist);
+
     return artist;
   }
 
-  findAll() {
-    return this.artistsData;
+  async findAll() {
+    return DataObj.artistsData;
   }
 
   getById(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
-    const artist = this.artistsData.find((artist) => artist.id == artistId);
+    const artist = DataObj.artistsData.find((artist) => artist.id == artistId);
 
     if (!artist) {
       throw new NotFoundException('Artist not found.');
@@ -64,7 +61,7 @@ export class ArtistService {
       );
     }
 
-    const index = this.artistsData.findIndex(
+    const index = DataObj.artistsData.findIndex(
       (artist) => artist.id == artistUniqueId,
     );
 
@@ -72,7 +69,7 @@ export class ArtistService {
       throw new NotFoundException('artist not found.');
     }
 
-    const { id, name, grammy } = this.artistsData[index];
+    const { id, name, grammy } = DataObj.artistsData[index];
 
     const updatedName =
       dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
@@ -81,9 +78,9 @@ export class ArtistService {
         ? dto.grammy
         : grammy;
 
-    this.artistsData[index] = new Artist(id, updatedName, updatedGrammy);
+    DataObj.artistsData[index] = new Artist(id, updatedName, updatedGrammy);
 
-    return this.artistsData[index];
+    return DataObj.artistsData[index];
   }
 
   delete(artistId: string) {
@@ -100,12 +97,12 @@ export class ArtistService {
       });
     }
 
-    const filteredArtists = this.artistsData.filter(
+    const filteredArtists = DataObj.artistsData.filter(
       (artist) => artist.id != artistId,
     );
 
-    if (this.artistsData.length !== filteredArtists.length) {
-      this.artistsData = filteredArtists;
+    if (DataObj.artistsData.length !== filteredArtists.length) {
+      DataObj.artistsData = filteredArtists;
     } else {
       throw new NotFoundException('Artist not found.');
     }

@@ -12,8 +12,6 @@ import { DataObj } from 'src/data';
 
 @Injectable()
 export class AlbumService {
-  albumsData: Album[] = DataObj.albumsData;
-
   create(dto: CreateAlbumDto) {
     const { name, artistId, year } = dto;
 
@@ -25,19 +23,19 @@ export class AlbumService {
     const createdAt: string = new Date(Date.now()).toDateString();
     const updatedAt: string = new Date(Date.now()).toDateString();
     const album = new Album(id, name, year, artistId);
-    this.albumsData.push(album);
+    DataObj.albumsData.push(album);
     return album;
   }
 
   findAll() {
-    return this.albumsData;
+    return DataObj.albumsData;
   }
 
   getById(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
-    const findAlbum = this.albumsData.find((user) => user.id === albumId);
+    const findAlbum = DataObj.albumsData.find((user) => user.id === albumId);
 
     if (!findAlbum) {
       throw new NotFoundException('Album not found.');
@@ -51,7 +49,7 @@ export class AlbumService {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
 
-    const index = this.albumsData.findIndex(
+    const index = DataObj.albumsData.findIndex(
       (album) => album.id == albumUniqueId,
     );
 
@@ -69,27 +67,27 @@ export class AlbumService {
       );
     }
 
-    const { id, name, artistId, year } = this.albumsData[index];
+    const { id, name, artistId, year } = DataObj.albumsData[index];
 
-    this.albumsData[index] = new Album(
+    DataObj.albumsData[index] = new Album(
       id,
       dto.name || name,
       dto.year || year,
       dto.artistId || artistId || null,
     );
-    return this.albumsData[index];
+    return DataObj.albumsData[index];
   }
 
   delete(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
-    const filteredAlbums = this.albumsData.filter(
+    const filteredAlbums = DataObj.albumsData.filter(
       (album) => album.id != albumId,
     );
 
-    if (this.albumsData.length !== filteredAlbums.length) {
-      this.albumsData = filteredAlbums;
+    if (DataObj.albumsData.length !== filteredAlbums.length) {
+      DataObj.albumsData = filteredAlbums;
     } else {
       throw new NotFoundException('Album not found.');
     }

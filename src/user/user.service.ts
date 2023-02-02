@@ -12,8 +12,6 @@ import { DataObj } from 'src/data';
 
 @Injectable()
 export class UserService {
-  usersData: User[] = DataObj.usersData;
-
   create(dto: CreateUserDto) {
     const { login, password } = dto;
     if (!login || !password) {
@@ -28,7 +26,7 @@ export class UserService {
     const createdAt: number = new Date().getTime();
     const updatedAt: number = new Date().getTime();
     const user = new User(id, login, password, version, createdAt, updatedAt);
-    this.usersData.push(user);
+    DataObj.usersData.push(user);
     const result = { ...user };
     delete result.password;
     return result;
@@ -36,14 +34,14 @@ export class UserService {
   }
 
   findAll() {
-    return this.usersData;
+    return DataObj.usersData;
   }
 
   getById(userId: string) {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    const findUser = this.usersData.find((user) => user.id === userId);
+    const findUser = DataObj.usersData.find((user) => user.id === userId);
 
     if (!findUser) {
       throw new NotFoundException('User not found.');
@@ -69,19 +67,22 @@ export class UserService {
       );
     }
 
-    const index = this.usersData.findIndex((user) => user.id == userUniqueId);
+    const index = DataObj.usersData.findIndex(
+      (user) => user.id == userUniqueId,
+    );
 
     if (index === -1) {
       throw new NotFoundException('User not found.');
     }
-    const { id, login, password, version, createdAt } = this.usersData[index];
+    const { id, login, password, version, createdAt } =
+      DataObj.usersData[index];
 
     if (dto.oldPassword !== password) {
       throw new HttpException('Not correct old password', HttpStatus.FORBIDDEN);
     }
     const updatedAt: number = new Date().getTime();
 
-    this.usersData[index] = new User(
+    DataObj.usersData[index] = new User(
       id,
       login,
       dto.newPassword,
@@ -90,7 +91,7 @@ export class UserService {
       updatedAt,
     );
 
-    const response = { ...this.usersData[index] };
+    const response = { ...DataObj.usersData[index] };
     delete response.password;
 
     return response;
@@ -100,10 +101,12 @@ export class UserService {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    const filteredUsers = this.usersData.filter((user) => user.id !== userId);
+    const filteredUsers = DataObj.usersData.filter(
+      (user) => user.id !== userId,
+    );
 
-    if (this.usersData.length !== filteredUsers.length) {
-      this.usersData = filteredUsers;
+    if (DataObj.usersData.length !== filteredUsers.length) {
+      DataObj.usersData = filteredUsers;
     } else {
       throw new NotFoundException('User not found.');
     }

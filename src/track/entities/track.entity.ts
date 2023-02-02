@@ -40,15 +40,11 @@ export class Track {
     artistId: string | null,
     albumId: string | null,
     duration: number,
-    createdAt: string,
-    updatedAt: string,
   ) {
     this.id = id;
     this.name = name;
     this.artistId = artistId;
     this.albumId = albumId;
     this.duration = duration;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 }

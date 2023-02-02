@@ -12,8 +12,6 @@ import { DataObj } from 'src/data';
 
 @Injectable()
 export class TrackService {
-  tracksData: Array<Track> = DataObj.tracksData;
-
   async create(dto: CreateTrackDto) {
     const { name, artistId, albumId, duration } = dto;
 
@@ -22,23 +20,19 @@ export class TrackService {
     }
 
     const id = uuidv4();
-    const createdAt: string = new Date(Date.now()).toDateString();
-    const updatedAt: string = new Date(Date.now()).toDateString();
     const track = new Track(
       id,
       name,
       artistId || null,
       albumId || null,
       duration,
-      createdAt,
-      updatedAt,
     );
-    this.tracksData.push(track);
+    DataObj.tracksData.push(track);
     return track;
   }
 
   findAll() {
-    return this.tracksData;
+    return DataObj.tracksData;
   }
 
   private validateId(id: string) {
@@ -49,7 +43,7 @@ export class TrackService {
 
   getById(trackId: string) {
     this.validateId(trackId);
-    const findTrack = this.tracksData.find((track) => track.id == trackId);
+    const findTrack = DataObj.tracksData.find((track) => track.id == trackId);
 
     if (!findTrack) {
       throw new NotFoundException('Track not found.');
@@ -63,7 +57,7 @@ export class TrackService {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
 
-    const index = this.tracksData.findIndex(
+    const index = DataObj.tracksData.findIndex(
       (track) => track.id === trackUniqueId,
     );
 
@@ -81,8 +75,7 @@ export class TrackService {
       );
     }
 
-    const { id, name, artistId, albumId, duration, createdAt } =
-      this.tracksData[index];
+    const { id, name, artistId, albumId, duration } = DataObj.tracksData[index];
 
     const updatedName =
       dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
@@ -100,18 +93,14 @@ export class TrackService {
         ? dto.duration
         : duration;
 
-    const updatedAt: string = new Date(Date.now()).toDateString();
-
-    this.tracksData[index] = new Track(
+    DataObj.tracksData[index] = new Track(
       id,
       updatedName,
       updatedArtistId,
       updatedAlbumId,
       updatedDuration,
-      createdAt,
-      updatedAt,
     );
-    return this.tracksData[index];
+    return DataObj.tracksData[index];
   }
 
   delete(trackId: string) {
@@ -119,12 +108,12 @@ export class TrackService {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
     // const filteredTracks = this.tracksData.filter((track) => track.id != trackId);
-    const findTrackIndex = this.tracksData?.findIndex(
+    const findTrackIndex = DataObj.tracksData?.findIndex(
       (track) => track.id === trackId,
     );
 
     if (findTrackIndex !== -1) {
-      this.tracksData.splice(findTrackIndex, 1);
+      DataObj.tracksData.splice(findTrackIndex, 1);
     } else {
       throw new NotFoundException('Track not found.');
     }
