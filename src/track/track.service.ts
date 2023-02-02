@@ -8,12 +8,13 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { Track } from './entities/track.entity';
 import { v4 as uuidv4, validate } from 'uuid';
+import { DataObj } from 'src/data';
 
 @Injectable()
 export class TrackService {
-  private _tracks: Track[] = [];
+  tracksData: Array<Track> = DataObj.tracksData;
 
-  create(dto: CreateTrackDto) {
+  async create(dto: CreateTrackDto) {
     const { name, artistId, albumId, duration } = dto;
 
     if (!name) {
@@ -32,12 +33,12 @@ export class TrackService {
       createdAt,
       updatedAt,
     );
-    this._tracks.push(track);
+    this.tracksData.push(track);
     return track;
   }
 
   findAll() {
-    return this._tracks;
+    return this.tracksData;
   }
 
   private validateId(id: string) {
@@ -48,7 +49,7 @@ export class TrackService {
 
   getById(trackId: string) {
     this.validateId(trackId);
-    const findTrack = this._tracks.find((track) => track.id == trackId);
+    const findTrack = this.tracksData.find((track) => track.id == trackId);
 
     if (!findTrack) {
       throw new NotFoundException('Track not found.');
@@ -62,7 +63,9 @@ export class TrackService {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
 
-    const index = this._tracks.findIndex((track) => track.id == trackUniqueId);
+    const index = this.tracksData.findIndex(
+      (track) => track.id === trackUniqueId,
+    );
 
     if (index === -1) {
       throw new NotFoundException('Track not found.');
@@ -79,30 +82,49 @@ export class TrackService {
     }
 
     const { id, name, artistId, albumId, duration, createdAt } =
-      this._tracks[index];
+      this.tracksData[index];
+
+    const updatedName =
+      dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
+    const updatedArtistId =
+      dto.hasOwnProperty('artistId') && dto?.artistId !== undefined
+        ? dto.artistId
+        : artistId;
+
+    const updatedAlbumId =
+      dto.hasOwnProperty('albumId') && dto?.albumId !== undefined
+        ? dto.albumId
+        : albumId;
+    const updatedDuration =
+      dto.hasOwnProperty('duration') && dto?.duration !== undefined
+        ? dto.duration
+        : duration;
 
     const updatedAt: string = new Date(Date.now()).toDateString();
 
-    this._tracks[index] = new Track(
+    this.tracksData[index] = new Track(
       id,
-      dto.name || name,
-      dto.artistId || artistId || null,
-      dto.albumId || albumId || null,
-      dto.duration || duration,
+      updatedName,
+      updatedArtistId,
+      updatedAlbumId,
+      updatedDuration,
       createdAt,
       updatedAt,
     );
-    return this._tracks[index];
+    return this.tracksData[index];
   }
 
   delete(trackId: string) {
     if (!validate(trackId)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
-    const filteredTracks = this._tracks.filter((track) => track.id != trackId);
+    // const filteredTracks = this.tracksData.filter((track) => track.id != trackId);
+    const findTrackIndex = this.tracksData?.findIndex(
+      (track) => track.id === trackId,
+    );
 
-    if (this._tracks.length !== filteredTracks.length) {
-      this._tracks = filteredTracks;
+    if (findTrackIndex !== -1) {
+      this.tracksData.splice(findTrackIndex, 1);
     } else {
       throw new NotFoundException('Track not found.');
     }
@@ -120,7 +142,9 @@ export class TrackService {
     const track = this.getById(trackId);
 
     if (track.artistId === artistId) {
-      track.artistId = null;
+      const updatedTrack = { ...track, artistId: null };
+
+      this.update(trackId, updatedTrack);
     }
   }
 }

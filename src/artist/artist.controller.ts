@@ -10,7 +10,6 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TrackService } from 'src/track/track.service';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
@@ -19,10 +18,7 @@ import { Artist } from './entities/artist.entity';
 @ApiTags('Artist')
 @Controller('artist')
 export class ArtistController {
-  constructor(
-    private readonly artistService: ArtistService,
-    private readonly trackService: TrackService,
-  ) {}
+  constructor(private readonly artistService: ArtistService) { }
 
   @Post()
   create(@Body() createArtistDto: CreateArtistDto) {
@@ -70,13 +66,6 @@ export class ArtistController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'No content' })
   delete(@Param('id') id: string) {
-    const trackWithSuchAlbumId = this.trackService
-      .findAll()
-      .find((track) => track.albumId === id);
-
-    if (trackWithSuchAlbumId) {
-      this.trackService.resetAlbumId(trackWithSuchAlbumId.id, id);
-    }
     return this.artistService.delete(id);
   }
 }

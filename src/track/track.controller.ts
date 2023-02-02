@@ -28,12 +28,12 @@ export class TrackController {
     type: Track,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  create(@Body() createTrackDto: CreateTrackDto) {
+  async create(@Body() createTrackDto: CreateTrackDto) {
     return this.trackService.create(createTrackDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.trackService.findAll();
   }
 
@@ -52,7 +52,7 @@ export class TrackController {
     status: HttpStatus.NO_CONTENT,
     description: 'Track not found.',
   })
-  getById(@Param('id') id: string) {
+  async getById(@Param('id') id: string) {
     return this.trackService.getById(id);
   }
 
@@ -64,14 +64,17 @@ export class TrackController {
     description: 'Successfully updated',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  update(@Param('id') id: string, @Body() updateTrackDto: UpdateTrackDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTrackDto: UpdateTrackDto,
+  ) {
     return this.trackService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'No content' })
-  delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     return this.trackService.delete(id);
   }
 }

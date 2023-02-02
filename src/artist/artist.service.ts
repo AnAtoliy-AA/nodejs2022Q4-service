@@ -8,10 +8,14 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { v4 as uuidv4, validate } from 'uuid';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
+import { TrackService } from 'src/track/track.service';
+import { DataObj } from 'src/data';
 
 @Injectable()
 export class ArtistService {
-  private _artists: Artist[] = [];
+  artistsData: Artist[] = DataObj.artistsData;
+
+  constructor(private readonly trackService: TrackService) {}
 
   create(dto: CreateArtistDto) {
     const { name, grammy } = dto;
@@ -24,19 +28,19 @@ export class ArtistService {
     const createdAt: string = new Date(Date.now()).toDateString();
     const updatedAt: string = new Date(Date.now()).toDateString();
     const artist = new Artist(id, name, grammy);
-    this._artists.push(artist);
+    this.artistsData.push(artist);
     return artist;
   }
 
   findAll() {
-    return this._artists;
+    return this.artistsData;
   }
 
   getById(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
-    const artist = this._artists.find((artist) => artist.id == artistId);
+    const artist = this.artistsData.find((artist) => artist.id == artistId);
 
     if (!artist) {
       throw new NotFoundException('Artist not found.');
@@ -60,7 +64,7 @@ export class ArtistService {
       );
     }
 
-    const index = this._artists.findIndex(
+    const index = this.artistsData.findIndex(
       (artist) => artist.id == artistUniqueId,
     );
 
@@ -68,26 +72,40 @@ export class ArtistService {
       throw new NotFoundException('artist not found.');
     }
 
-    const { id, name, grammy } = this._artists[index];
+    const { id, name, grammy } = this.artistsData[index];
 
-    this._artists[index] = new Artist(
-      id,
-      dto.name || name,
-      dto.grammy || grammy,
-    );
-    return this._artists[index];
+    const updatedName =
+      dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
+    const updatedGrammy =
+      dto.hasOwnProperty('grammy') && dto?.grammy !== undefined
+        ? dto.grammy
+        : grammy;
+
+    this.artistsData[index] = new Artist(id, updatedName, updatedGrammy);
+
+    return this.artistsData[index];
   }
 
   delete(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
-    const filteredArtists = this._artists.filter(
+
+    const tracks = this.trackService?.findAll();
+    if (tracks?.length) {
+      tracks.forEach((_track) => {
+        if (_track?.artistId === artistId) {
+          this.trackService?.resetArtistId(_track?.id, artistId);
+        }
+      });
+    }
+
+    const filteredArtists = this.artistsData.filter(
       (artist) => artist.id != artistId,
     );
 
-    if (this._artists.length !== filteredArtists.length) {
-      this._artists = filteredArtists;
+    if (this.artistsData.length !== filteredArtists.length) {
+      this.artistsData = filteredArtists;
     } else {
       throw new NotFoundException('Artist not found.');
     }

@@ -8,10 +8,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { v4 as uuidv4, validate } from 'uuid';
+import { DataObj } from 'src/data';
 
 @Injectable()
 export class UserService {
-  private _users: User[] = [];
+  usersData: User[] = DataObj.usersData;
 
   create(dto: CreateUserDto) {
     const { login, password } = dto;
@@ -27,7 +28,7 @@ export class UserService {
     const createdAt: number = new Date().getTime();
     const updatedAt: number = new Date().getTime();
     const user = new User(id, login, password, version, createdAt, updatedAt);
-    this._users.push(user);
+    this.usersData.push(user);
     const result = { ...user };
     delete result.password;
     return result;
@@ -35,14 +36,14 @@ export class UserService {
   }
 
   findAll() {
-    return this._users;
+    return this.usersData;
   }
 
   getById(userId: string) {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    const findUser = this._users.find((user) => user.id === userId);
+    const findUser = this.usersData.find((user) => user.id === userId);
 
     if (!findUser) {
       throw new NotFoundException('User not found.');
@@ -68,19 +69,19 @@ export class UserService {
       );
     }
 
-    const index = this._users.findIndex((user) => user.id == userUniqueId);
+    const index = this.usersData.findIndex((user) => user.id == userUniqueId);
 
     if (index === -1) {
       throw new NotFoundException('User not found.');
     }
-    const { id, login, password, version, createdAt } = this._users[index];
+    const { id, login, password, version, createdAt } = this.usersData[index];
 
     if (dto.oldPassword !== password) {
       throw new HttpException('Not correct old password', HttpStatus.FORBIDDEN);
     }
     const updatedAt: number = new Date().getTime();
 
-    this._users[index] = new User(
+    this.usersData[index] = new User(
       id,
       login,
       dto.newPassword,
@@ -89,7 +90,7 @@ export class UserService {
       updatedAt,
     );
 
-    const response = { ...this._users[index] };
+    const response = { ...this.usersData[index] };
     delete response.password;
 
     return response;
@@ -99,10 +100,10 @@ export class UserService {
     if (!validate(userId)) {
       throw new HttpException('Not valid user id', HttpStatus.BAD_REQUEST);
     }
-    const filteredUsers = this._users.filter((user) => user.id !== userId);
+    const filteredUsers = this.usersData.filter((user) => user.id !== userId);
 
-    if (this._users.length !== filteredUsers.length) {
-      this._users = filteredUsers;
+    if (this.usersData.length !== filteredUsers.length) {
+      this.usersData = filteredUsers;
     } else {
       throw new NotFoundException('User not found.');
     }

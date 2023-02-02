@@ -3,14 +3,11 @@ import { Track } from 'src/track/entities/track.entity';
 import { Artist } from 'src/artist/entities/artist.entity';
 import { Album } from 'src/album/entities/album.entity';
 import { Favorites, FavoritesResponse, Resource } from './entities/fav.entity';
+import { DataObj } from 'src/data';
 
 @Injectable()
 export class FavsService {
-  private favs: Favorites = {
-    artistsIds: [],
-    albumsIds: [],
-    tracksIds: [],
-  };
+  favoritesData: Favorites = DataObj.favoritesData;
 
   findAll(
     tracks: Track[],
@@ -19,10 +16,14 @@ export class FavsService {
   ): FavoritesResponse {
     return {
       artists: artists.filter((artist) =>
-        this.favs.artistsIds.includes(artist.id),
+        this.favoritesData.artistsIds.includes(artist.id),
       ),
-      albums: albums.filter((album) => this.favs.albumsIds.includes(album.id)),
-      tracks: tracks.filter((track) => this.favs.tracksIds.includes(track.id)),
+      albums: albums.filter((album) =>
+        this.favoritesData.albumsIds.includes(album.id),
+      ),
+      tracks: tracks.filter((track) =>
+        this.favoritesData.tracksIds.includes(track.id),
+      ),
     };
   }
 
@@ -58,7 +59,7 @@ export class FavsService {
       type: 'track',
     }) as Track;
 
-    this.favs.tracksIds.push(id);
+    this.favoritesData.tracksIds.push(id);
 
     return track;
   }
@@ -69,7 +70,7 @@ export class FavsService {
       type: 'track',
     });
 
-    this.favs.tracksIds = this.favs.tracksIds.filter(
+    this.favoritesData.tracksIds = this.favoritesData.tracksIds.filter(
       (trackId) => trackId !== id,
     );
   }
@@ -81,7 +82,7 @@ export class FavsService {
       type: 'artist',
     }) as Artist;
 
-    this.favs.artistsIds.push(id);
+    this.favoritesData.artistsIds.push(id);
 
     return artist;
   }
@@ -92,7 +93,7 @@ export class FavsService {
       type: 'artist',
     });
 
-    this.favs.artistsIds = this.favs.artistsIds.filter(
+    this.favoritesData.artistsIds = this.favoritesData.artistsIds.filter(
       (artistId) => artistId !== id,
     );
   }
@@ -104,7 +105,7 @@ export class FavsService {
       type: 'album',
     }) as Album;
 
-    this.favs.albumsIds.push(id);
+    this.favoritesData.albumsIds.push(id);
 
     return album;
   }
@@ -115,7 +116,7 @@ export class FavsService {
       type: 'album',
     });
 
-    this.favs.albumsIds = this.favs.albumsIds.filter(
+    this.favoritesData.albumsIds = this.favoritesData.albumsIds.filter(
       (albumId) => albumId !== id,
     );
   }

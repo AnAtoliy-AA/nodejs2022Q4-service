@@ -8,10 +8,11 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { v4 as uuidv4, validate } from 'uuid';
 import { Album } from './entities/album.entity';
+import { DataObj } from 'src/data';
 
 @Injectable()
 export class AlbumService {
-  private _albums: Album[] = [];
+  albumsData: Album[] = DataObj.albumsData;
 
   create(dto: CreateAlbumDto) {
     const { name, artistId, year } = dto;
@@ -24,19 +25,19 @@ export class AlbumService {
     const createdAt: string = new Date(Date.now()).toDateString();
     const updatedAt: string = new Date(Date.now()).toDateString();
     const album = new Album(id, name, year, artistId);
-    this._albums.push(album);
+    this.albumsData.push(album);
     return album;
   }
 
   findAll() {
-    return this._albums;
+    return this.albumsData;
   }
 
   getById(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
-    const findAlbum = this._albums.find((user) => user.id === albumId);
+    const findAlbum = this.albumsData.find((user) => user.id === albumId);
 
     if (!findAlbum) {
       throw new NotFoundException('Album not found.');
@@ -50,7 +51,9 @@ export class AlbumService {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
 
-    const index = this._albums.findIndex((album) => album.id == albumUniqueId);
+    const index = this.albumsData.findIndex(
+      (album) => album.id == albumUniqueId,
+    );
 
     if (index === -1) {
       throw new NotFoundException('album not found.');
@@ -66,25 +69,27 @@ export class AlbumService {
       );
     }
 
-    const { id, name, artistId, year } = this._albums[index];
+    const { id, name, artistId, year } = this.albumsData[index];
 
-    this._albums[index] = new Album(
+    this.albumsData[index] = new Album(
       id,
       dto.name || name,
       dto.year || year,
       dto.artistId || artistId || null,
     );
-    return this._albums[index];
+    return this.albumsData[index];
   }
 
   delete(albumId: string) {
     if (!validate(albumId)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
     }
-    const filteredAlbums = this._albums.filter((album) => album.id != albumId);
+    const filteredAlbums = this.albumsData.filter(
+      (album) => album.id != albumId,
+    );
 
-    if (this._albums.length !== filteredAlbums.length) {
-      this._albums = filteredAlbums;
+    if (this.albumsData.length !== filteredAlbums.length) {
+      this.albumsData = filteredAlbums;
     } else {
       throw new NotFoundException('Album not found.');
     }
