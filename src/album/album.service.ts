@@ -20,8 +20,6 @@ export class AlbumService {
     }
 
     const id = uuidv4();
-    const createdAt: string = new Date(Date.now()).toDateString();
-    const updatedAt: string = new Date(Date.now()).toDateString();
     const album = new Album(id, name, year, artistId);
     DataObj.albumsData.push(album);
     return album;
