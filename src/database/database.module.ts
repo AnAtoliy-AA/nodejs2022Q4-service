@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import DatabaseLogger from './databaseLogger';
+import { UserModule } from 'src/user/user.module';
+import { FavsModule } from 'src/favs/favs.module';
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import DatabaseLogger from './databaseLogger';
         type: 'postgres',
         logger: new DatabaseLogger(),
         host: configService.get('POSTGRES_HOST'),
-        port: configService.get('POSTGRES_PORT'),
+        port: configService.get<number>('POSTGRES_PORT'),
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),

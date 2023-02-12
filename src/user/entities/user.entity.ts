@@ -8,7 +8,7 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   @ApiProperty({ description: 'User identifier uuid v4', nullable: false })
   id: string;
 
@@ -52,5 +52,11 @@ export class User {
     this.version = version;
     this.createdAt = +createdAt;
     this.updatedAt = +updatedAt;
+  }
+
+  toResponse() {
+    const { id, login, version, createdAt, updatedAt } = this;
+
+    return { id, login, version, createdAt, updatedAt };
   }
 }

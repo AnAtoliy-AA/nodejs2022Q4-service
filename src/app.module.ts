@@ -13,10 +13,10 @@ import { DatabaseModule } from './database/database.module';
 @Module({
   imports: [
     UserModule,
-    TrackModule,
-    ArtistModule,
-    AlbumModule,
-    FavsModule,
+    // TrackModule,
+    // ArtistModule,
+    // AlbumModule,
+    // FavsModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),

@@ -8,9 +8,10 @@ import { ArtistService } from 'src/artist/artist.service';
 import { TrackService } from 'src/track/track.service';
 import { UserService } from 'src/user/user.service';
 import { AlbumService } from 'src/album/album.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [ArtistModule, TrackModule, AlbumModule],
+  imports: [ArtistModule, TrackModule, AlbumModule, UserModule],
   controllers: [FavsController],
   providers: [
     FavsService,
