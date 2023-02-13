@@ -27,11 +27,11 @@ export class User {
   })
   version: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @Column()
   @ApiProperty({ description: 'User timestamp of creation', nullable: false })
   createdAt: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @Column()
   @ApiProperty({
     description: 'User timestamp of last update',
     nullable: false,

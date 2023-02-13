@@ -13,7 +13,7 @@ import { DatabaseModule } from './database/database.module';
 @Module({
   imports: [
     UserModule,
-    // TrackModule,
+    TrackModule,
     // ArtistModule,
     // AlbumModule,
     // FavsModule,

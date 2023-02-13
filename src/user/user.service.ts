@@ -142,16 +142,20 @@ export class UserService {
     // const filteredUsers = DataObj.usersData.filter(
     //   (user) => user.id !== userId,
     // );
-    const deletedUser = await this.userRepository.findOne({
-      where: { id: userId },
-    });
+    // const deletedUser = await this.userRepository.findOne({
+    //   where: { id: userId },
+    // });
 
-    if (!deletedUser) {
+    // if (!deletedUser) {
+    //   throw new NotFoundException('User not found.');
+    // }
+
+    const result = await this.userRepository.delete({ id: userId });
+
+
+    if (result.affected === 0) {
       throw new NotFoundException('User not found.');
     }
-
-    return await this.userRepository.delete({ id: userId });
-
     // if (DataObj.usersData.length !== filteredUsers.length) {
     //   DataObj.usersData = filteredUsers;
     // } else {
