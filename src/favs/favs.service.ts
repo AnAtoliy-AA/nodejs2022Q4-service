@@ -16,7 +16,7 @@ export class FavsService {
 
   async findAll(): Promise<FavoritesResponse> {
     const artists = await this.artistService.findAll();
-    const albums = this.albumService.findAll();
+    const albums = await this.albumService.findAll();
     const tracks = this.trackService.findAll();
 
     return {
@@ -116,14 +116,14 @@ export class FavsService {
   }
 
   // album
-  addAlbum(id: string) {
+  async addAlbum(id: string) {
     if (!validate(id)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
 
-    const album = this.albumService
-      ?.findAll()
-      ?.find((_album) => _album?.id === id);
+    const album = (await this.albumService?.findAll())?.find(
+      (_album) => _album?.id === id,
+    );
     if (album) {
       DataObj.favoritesData.albumsIds.push(id);
     } else {

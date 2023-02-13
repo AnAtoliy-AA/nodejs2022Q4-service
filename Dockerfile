@@ -1,5 +1,5 @@
 
-FROM node:18-alpine
+FROM node:18.14-alpine
 
 # Docker working directory
 WORKDIR /app
