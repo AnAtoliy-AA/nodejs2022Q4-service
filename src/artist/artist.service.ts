@@ -11,7 +11,6 @@ import { Artist } from './entities/artist.entity';
 import { TrackService } from 'src/track/track.service';
 import { DataObj } from 'src/data';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Track } from 'src/track/entities/track.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -121,12 +120,12 @@ export class ArtistService {
     // return DataObj.artistsData[index];
   }
 
-  delete(artistId: string) {
+  async delete(artistId: string) {
     if (!validate(artistId)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
 
-    const tracks = this.trackService?.findAll();
+    const tracks = await this.trackService?.findAll();
     if (tracks?.length) {
       tracks.forEach((_track) => {
         if (_track?.artistId === artistId) {

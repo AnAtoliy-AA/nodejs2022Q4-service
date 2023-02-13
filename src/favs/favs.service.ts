@@ -26,7 +26,7 @@ export class FavsService {
       albums: albums.filter((album) =>
         DataObj.favoritesData.albumsIds.includes(album.id),
       ),
-      tracks: tracks.filter((track) =>
+      tracks: (await tracks).filter((track) =>
         DataObj.favoritesData.tracksIds.includes(track.id),
       ),
     };
@@ -58,14 +58,14 @@ export class FavsService {
     return true;
   }
 
-  addTrack(id: string) {
+  async addTrack(id: string) {
     if (!validate(id)) {
       throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
     }
 
-    const track = this.trackService
-      ?.findAll()
-      ?.find((_track) => _track?.id === id);
+    const track = (await this.trackService?.findAll())?.find(
+      (_track) => _track?.id === id,
+    );
 
     if (track) {
       DataObj.favoritesData.tracksIds.push(id);

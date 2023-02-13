@@ -46,10 +46,10 @@ export class AlbumController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'No content' })
-  delete(@Param('id') id: string) {
-    const trackWithSuchAlbumId = this.trackService
-      .findAll()
-      .find((track) => track.albumId === id);
+  async delete(@Param('id') id: string) {
+    const trackWithSuchAlbumId = (await this.trackService.findAll()).find(
+      (track) => track.albumId === id,
+    );
 
     if (trackWithSuchAlbumId) {
       this.trackService.resetAlbumId(trackWithSuchAlbumId.id, id);
