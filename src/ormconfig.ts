@@ -16,5 +16,5 @@ export default {
   entities: ['dist/**/entities/**/*{.js,.ts}'],
   migrations: ['dist/**/migration/**/*{.js,.ts}'],
   subscribers: ['dist/subscriber/**/*{.js,.ts}'],
-  synchronize: false,
+  synchronize: true,
 } as DataSourceOptions;
