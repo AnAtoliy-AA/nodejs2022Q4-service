@@ -1,12 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Favorites, FavoritesResponse, Resource } from './entities/fav.entity';
-// import { DataObj } from 'src/data';
 import { AlbumService } from 'src/album/album.service';
 import { ArtistService } from 'src/artist/artist.service';
 import { TrackService } from 'src/track/track.service';
 import { validate } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataObj } from 'src/data';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -20,22 +18,6 @@ export class FavsService {
   ) {}
 
   async findAll(): Promise<FavoritesResponse> {
-    // const artists = await this.artistService.findAll();
-    // const albums = await this.albumService.findAll();
-    // const tracks = this.trackService.findAll();
-
-    // return {
-    //   artists: artists.filter((artist) =>
-    //     DataObj.favoritesData.artistsIds.includes(artist.id),
-    //   ),
-    //   albums: albums.filter((album) =>
-    //     DataObj.favoritesData.albumsIds.includes(album.id),
-    //   ),
-    //   tracks: (await tracks).filter((track) =>
-    //     DataObj.favoritesData.tracksIds.includes(track.id),
-    //   ),
-    // };
-
     const favorites = await this.favoritesRepository.find({
       relations: {
         artists: true,
@@ -51,32 +33,6 @@ export class FavsService {
           tracks: [],
         })
       : favorites?.[0];
-  }
-
-  private validateResourceAndGetById(id: string, resource: Resource) {
-    const oneResource = resource.data.find((r) => r.id === id);
-
-    if (oneResource == null) {
-      throw new HttpException(
-        `${resource.type} with id === ${id} don't exist`,
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-
-    return oneResource;
-  }
-
-  private validateResourceAndDeleteById(id: string, resource: Resource) {
-    const oneResource = resource.data.find((r) => r.id === id);
-
-    if (oneResource == null) {
-      throw new HttpException(
-        `${resource.type} with id === ${id} not a favorite`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return true;
   }
 
   async addTrack(id: string) {
@@ -151,7 +107,6 @@ export class FavsService {
     return await this.favoritesRepository.save(favorites);
   }
 
-  // album
   async addAlbum(id: string) {
     if (!validate(id)) {
       throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
