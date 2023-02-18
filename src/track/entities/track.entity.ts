@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Album } from 'src/album/entities/album.entity';
+import { Artist } from 'src/artist/entities/artist.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Track {
@@ -12,8 +20,14 @@ export class Track {
   name: string;
 
   @Column({ nullable: true })
-  // @OneToOne(() => Artist)
-  // @JoinColumn()
+  @ManyToOne(() => Artist, (album) => album.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({
+    name: 'artistId',
+    referencedColumnName: 'id',
+  })
   @ApiProperty({
     description: 'Track artistId refers to Artist',
     nullable: true,
@@ -21,8 +35,14 @@ export class Track {
   artistId: string | null;
 
   @Column({ nullable: true })
-  // @OneToOne(() => Album)
-  // @JoinColumn()
+  @ManyToOne(() => Album, (album) => album.id, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({
+    name: 'albumId',
+    referencedColumnName: 'id',
+  })
   @ApiProperty({
     description: 'Track albumId refers to Album',
     nullable: true,

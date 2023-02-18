@@ -96,6 +96,7 @@ export class TrackService {
     if (track.albumId === albumId) {
       track.albumId = null;
     }
+    this.update(trackId, track);
   }
 
   async resetArtistId(trackId: string, artistId: string) {

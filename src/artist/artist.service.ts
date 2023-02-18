@@ -8,8 +8,6 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { v4 as uuidv4, validate } from 'uuid';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
-import { TrackService } from 'src/track/track.service';
-import { DataObj } from 'src/data';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -17,8 +15,7 @@ import { Repository } from 'typeorm';
 export class ArtistService {
   constructor(
     @InjectRepository(Artist)
-    private readonly artistRepository: Repository<Artist>,
-    private readonly trackService: TrackService,
+    private artistRepository: Repository<Artist>
   ) {}
 
   async create(dto: CreateArtistDto) {
@@ -33,7 +30,7 @@ export class ArtistService {
     // DataObj.artistsData.push(artist);
 
     // return artist;
-    const createdArtist = await this.artistRepository.create({
+    const createdArtist = this.artistRepository.create({
       id,
       name,
       grammy,
@@ -41,7 +38,7 @@ export class ArtistService {
 
     // const album = new Album(id, name, year, artistId);
     // DataObj.albumsData.push(album);
-    return createdArtist;
+    return await this.artistRepository.save(createdArtist);
   }
 
   async findAll() {
@@ -49,10 +46,14 @@ export class ArtistService {
     return await this.artistRepository.find();
   }
 
-  async getById(artistId: string) {
-    if (!validate(artistId)) {
+  private validateId(id: string) {
+    if (!validate(id)) {
       throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async getById(artistId: string) {
+    this.validateId(artistId);
     // const artist = DataObj.artistsData.find((artist) => artist.id == artistId);
 
     // if (!artist) {
@@ -72,10 +73,6 @@ export class ArtistService {
   }
 
   async update(artistUniqueId: string, dto: UpdateArtistDto) {
-    if (!validate(artistUniqueId)) {
-      throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
-    }
-
     if (typeof dto.name !== 'string' || typeof dto.grammy !== 'boolean') {
       throw new HttpException(
         {
@@ -86,9 +83,7 @@ export class ArtistService {
       );
     }
 
-    const updatedArtist = await this.artistRepository.findOne({
-      where: { id: artistUniqueId },
-    });
+    const updatedArtist = await this.getById(artistUniqueId);
 
     if (!updatedArtist) {
       throw new NotFoundException('artist not found.');
@@ -121,26 +116,30 @@ export class ArtistService {
   }
 
   async delete(artistId: string) {
-    if (!validate(artistId)) {
-      throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
-    }
+    this.validateId(artistId);
 
-    const tracks = await this.trackService?.findAll();
-    if (tracks?.length) {
-      tracks.forEach((_track) => {
-        if (_track?.artistId === artistId) {
-          this.trackService?.resetArtistId(_track?.id, artistId);
-        }
-      });
-    }
+    // const tracks = await this.trackService?.findAll();
+    // if (tracks?.length) {
+    //   tracks.forEach(async (_track) => {
+    //     if (_track?.artistId === artistId) {
+    //       await this.trackService?.resetArtistId(_track?.id, artistId);
+    //     }
+    //   });
+    // }
 
-    const filteredArtists = DataObj.artistsData.filter(
-      (artist) => artist.id != artistId,
-    );
+    // const filteredArtists = DataObj.artistsData.filter(
+    //   (artist) => artist.id != artistId,
+    // );
 
-    if (DataObj.artistsData.length !== filteredArtists.length) {
-      DataObj.artistsData = filteredArtists;
-    } else {
+    // if (DataObj.artistsData.length !== filteredArtists.length) {
+    //   DataObj.artistsData = filteredArtists;
+    // } else {
+    //   throw new NotFoundException('Artist not found.');
+    // }
+
+    const result = await this.artistRepository.delete({ id: artistId });
+
+    if (result.affected === 0) {
       throw new NotFoundException('Artist not found.');
     }
   }
