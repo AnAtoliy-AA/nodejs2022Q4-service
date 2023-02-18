@@ -9,9 +9,10 @@ const tracksData: Array<Track> = [];
 const albumsData: Array<Album> = [];
 const usersData: Array<User> = [];
 const favoritesData: Favorites = {
-  artistsIds: [],
-  albumsIds: [],
-  tracksIds: [],
+  artists: [],
+  albums: [],
+  tracks: [],
+  id: ''
 };
 
 export const DataObj = {
