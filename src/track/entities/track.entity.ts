@@ -1,17 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Album } from 'src/album/entities/album.entity';
-import { Artist } from 'src/artist/entities/artist.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Track {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   @ApiProperty({ description: 'Track identifier uuid v4', nullable: false })
   id: string;
 
@@ -19,16 +11,18 @@ export class Track {
   @ApiProperty({ description: 'Track name', nullable: false })
   name: string;
 
-  @Column()
-  @OneToOne(() => Artist, { eager: true })
+  @Column({ nullable: true })
+  // @OneToOne(() => Artist)
+  // @JoinColumn()
   @ApiProperty({
     description: 'Track artistId refers to Artist',
     nullable: true,
   })
   artistId: string | null;
 
-  @Column()
-  @OneToOne(() => Album, { eager: true })
+  @Column({ nullable: true })
+  // @OneToOne(() => Album)
+  // @JoinColumn()
   @ApiProperty({
     description: 'Track albumId refers to Album',
     nullable: true,
@@ -41,17 +35,6 @@ export class Track {
     nullable: false,
   })
   duration: number;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  @ApiProperty({ description: 'Track timestamp of creation', nullable: false })
-  createdAt: string;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  @ApiProperty({
-    description: 'Track timestamp of last update',
-    nullable: false,
-  })
-  updatedAt: string;
 
   constructor(
     id: string,

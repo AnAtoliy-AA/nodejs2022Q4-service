@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Artist } from 'src/artist/entities/artist.entity';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Album {
@@ -13,7 +19,7 @@ export class Album {
   name: string;
 
   @Column()
-  @OneToOne(() => Artist, { eager: true })
+  // @OneToOne(() => Artist, { eager: true })
   @ApiProperty({
     description: 'Album artistId refers to Artist',
     nullable: true,

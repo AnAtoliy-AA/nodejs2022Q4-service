@@ -22,14 +22,11 @@
     "docker:compose": "docker-compose up --build",
     "docker:build": "docker build -t anatoliy1/nodejs2022q4-service",
     "docker:push": "docker push anatoliy1/nodejs2022q4-service",
-    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config src/ormconfig.ts",
-    "typeorm:create": "npm run typeorm migration:create -- -n",
-    "typeorm:generate": "npm run typeorm migration:generate -n ./src/orm/migration/update -d ./src/orm/datasource.ts",
-    "typeorm:run": "npm run typeorm migration:run",
-    "typeorm:revert": "npm run typeorm migration:revert",
-    "migration:generate": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:generate -d src/modules/config/ormconfig.ts",
-    "migration:up": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/modules/config/ormconfig.ts",
-    "migration:down": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:revert -d src/modules/config/ormconfig.ts"
+    "typeorm": "npm run build && npx typeorm -d dist/migration.config.js",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:create": "npm run typeorm -- migration:create",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:down": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

@@ -16,7 +16,7 @@ import { Repository } from 'typeorm';
 export class TrackService {
   constructor(
     @InjectRepository(Track)
-    private readonly trackRepository: Repository<Track>,
+    private trackRepository: Repository<Track>,
   ) {}
 
   async create(dto: CreateTrackDto) {
@@ -37,7 +37,7 @@ export class TrackService {
     // DataObj.tracksData.push(track);
     // return track;
 
-    const track = await this.trackRepository.create({
+    const track = this.trackRepository.create({
       id,
       name,
       artistId,
@@ -47,12 +47,14 @@ export class TrackService {
 
     // const album = new Album(id, name, year, artistId);
     // DataObj.albumsData.push(album);
-    return track;
+    return await this.trackRepository.save(track);
   }
 
   async findAll() {
     // return DataObj.tracksData;
     return await this.trackRepository.find();
+    // const tracks = await this.trackRepository.find();
+    // return tracks
   }
 
   private validateId(id: string) {
@@ -82,18 +84,18 @@ export class TrackService {
     return findTrack;
   }
 
-  update(trackUniqueId: string, dto: UpdateTrackDto) {
-    if (!validate(trackUniqueId)) {
-      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
-    }
+  async update(trackUniqueId: string, dto: UpdateTrackDto) {
+    this.validateId(trackUniqueId);
 
-    const index = DataObj.tracksData.findIndex(
-      (track) => track.id === trackUniqueId,
-    );
+    // const index = DataObj.tracksData.findIndex(
+    //   (track) => track.id === trackUniqueId,
+    // );
 
-    if (index === -1) {
-      throw new NotFoundException('Track not found.');
-    }
+    // if (index === -1) {
+    //   throw new NotFoundException('Track not found.');
+    // }
+
+    const updatedTrack = await this.getById(trackUniqueId);
 
     if (!dto.name || typeof dto.duration !== 'number') {
       throw new HttpException(
@@ -105,38 +107,40 @@ export class TrackService {
       );
     }
 
-    const { id, name, artistId, albumId, duration } = DataObj.tracksData[index];
+    // const { id, name, artistId, albumId, duration } = track;
 
-    const updatedName =
-      dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
-    const updatedArtistId =
-      dto.hasOwnProperty('artistId') && dto?.artistId !== undefined
-        ? dto.artistId
-        : artistId;
+    // const updatedName =
+    //   dto.hasOwnProperty('name') && dto?.name !== undefined ? dto.name : name;
+    // const updatedArtistId =
+    //   dto.hasOwnProperty('artistId') && dto?.artistId !== undefined
+    //     ? dto.artistId
+    //     : artistId;
 
-    const updatedAlbumId =
-      dto.hasOwnProperty('albumId') && dto?.albumId !== undefined
-        ? dto.albumId
-        : albumId;
-    const updatedDuration =
-      dto.hasOwnProperty('duration') && dto?.duration !== undefined
-        ? dto.duration
-        : duration;
+    // const updatedAlbumId =
+    //   dto.hasOwnProperty('albumId') && dto?.albumId !== undefined
+    //     ? dto.albumId
+    //     : albumId;
+    // const updatedDuration =
+    //   dto.hasOwnProperty('duration') && dto?.duration !== undefined
+    //     ? dto.duration
+    //     : duration;
 
-    DataObj.tracksData[index] = new Track(
-      id,
-      updatedName,
-      updatedArtistId,
-      updatedAlbumId,
-      updatedDuration,
-    );
-    return DataObj.tracksData[index];
+    // DataObj.tracksData[index] = new Track(
+    //   id,
+    //   updatedName,
+    //   updatedArtistId,
+    //   updatedAlbumId,
+    //   updatedDuration,
+    // );
+    // return DataObj.tracksData[index];
+
+    Object.assign(updatedTrack, dto);
+
+    return await this.trackRepository.save(updatedTrack);
   }
 
   async delete(trackId: string) {
-    if (!validate(trackId)) {
-      throw new HttpException('Not valid track id', HttpStatus.BAD_REQUEST);
-    }
+    this.validateId(trackId);
     // const filteredTracks = this.tracksData.filter((track) => track.id != trackId);
     // const findTrackIndex = DataObj.tracksData?.findIndex(
     //   (track) => track.id === trackId,
