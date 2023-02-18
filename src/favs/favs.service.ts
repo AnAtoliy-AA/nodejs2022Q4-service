@@ -14,9 +14,9 @@ export class FavsService {
   constructor(
     @InjectRepository(Favorites)
     private favoritesRepository: Repository<Favorites>,
-    private readonly trackService: TrackService,
-    private readonly artistService: ArtistService,
-    private readonly albumService: AlbumService,
+    private trackService: TrackService,
+    private artistService: ArtistService,
+    private albumService: AlbumService,
   ) {}
 
   async findAll(): Promise<FavoritesResponse> {
@@ -109,20 +109,20 @@ export class FavsService {
     const favorites = await this.findAll();
 
     favorites.tracks = favorites.tracks.filter(
-      (_track) => _track.id === trackId,
+      (_track) => _track.id !== trackId,
     );
 
     return await this.favoritesRepository.save(favorites);
   }
 
-  async addArtist(id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Not valid album id', HttpStatus.BAD_REQUEST);
+  async addArtist(artistId: string) {
+    if (!validate(artistId)) {
+      throw new HttpException('Not valid artist id', HttpStatus.BAD_REQUEST);
     }
 
-    const artist = (await this.artistService?.findAll())?.find(
-      (_artist) => _artist?.id === id,
-    );
+    const artist = (await this.artistService?.findAll())?.find((_artist) => {
+      return _artist?.id === artistId;
+    });
 
     if (artist) {
       const favorites = await this.findAll();
@@ -145,7 +145,7 @@ export class FavsService {
     const favorites = await this.findAll();
 
     favorites.artists = favorites.artists.filter(
-      (_artist) => _artist.id === artistId,
+      (_artist) => _artist.id !== artistId,
     );
 
     return await this.favoritesRepository.save(favorites);
@@ -182,7 +182,7 @@ export class FavsService {
     const favorites = await this.findAll();
 
     favorites.albums = favorites.albums.filter(
-      (_album) => _album.id === albumId,
+      (_album) => _album.id !== albumId,
     );
 
     return await this.favoritesRepository.save(favorites);
