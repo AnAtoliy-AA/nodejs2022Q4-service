@@ -16,7 +16,7 @@ import { Repository } from 'typeorm/repository/Repository';
 export class AlbumService {
   constructor(
     @InjectRepository(Album)
-    private readonly albumRepository: Repository<Album>,
+    private albumRepository: Repository<Album>,
   ) {}
 
   async create(dto: CreateAlbumDto) {
@@ -36,7 +36,7 @@ export class AlbumService {
 
     // const album = new Album(id, name, year, artistId);
     // DataObj.albumsData.push(album);
-    return createdAlbum;
+    return await this.albumRepository.save(createdAlbum);
   }
 
   async findAll() {
