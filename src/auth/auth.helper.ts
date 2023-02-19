@@ -15,9 +15,7 @@ export class AuthHelper {
   @InjectRepository(User)
   private readonly repository: Repository<User>;
 
-  private readonly jwt: JwtService;
-
-  constructor(jwt: JwtService) {
+  constructor(private readonly jwt: JwtService) {
     this.jwt = jwt;
   }
 

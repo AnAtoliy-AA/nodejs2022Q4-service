@@ -8,4 +8,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 
   @ApiProperty({ description: 'User new password', nullable: false })
   newPassword: string;
+
+  @ApiProperty({ description: 'User new password', nullable: true })
+  lastLoginAt: Date;
 }

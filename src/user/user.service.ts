@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { User } from './entities/user.entity';
 import { v4 as uuidv4, validate } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AuthHelper } from 'src/auth/auth.helper';
 
 @Injectable()
 export class UserService {
@@ -17,6 +19,9 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
+  @Inject(AuthHelper)
+  private readonly helper: AuthHelper;
 
   async create(dto: CreateUserDto) {
     const { login, password } = dto;
@@ -27,21 +32,32 @@ export class UserService {
       );
     }
 
-    const id = uuidv4();
-    const version = 1;
-    const createdAt = new Date().getMilliseconds();
-    const updatedAt = new Date().getMilliseconds();
+    const existingUser = await this.getByLogin(login);
 
-    const createdUser = this.userRepository.create({
-      id,
-      login,
-      password,
-      version,
-      createdAt,
-      updatedAt,
-    });
+    if (!existingUser) {
+      const id = uuidv4();
+      const version = 1;
+      const createdAt = new Date().getMilliseconds();
+      const updatedAt = new Date().getMilliseconds();
+  
+      const createdUser = this.userRepository.create({
+        id,
+        login,
+        password: this.helper.encodePassword(password),
+        version,
+        createdAt,
+        updatedAt,
+      });
+  
+      return (await this.userRepository.save(createdUser)).toResponse() as User;
+    } else {
 
-    return (await this.userRepository.save(createdUser)).toResponse() as User;
+      throw new HttpException(
+        'User with this login already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
   }
 
   async findAll() {
@@ -63,6 +79,26 @@ export class UserService {
     }
 
     return findUser.toResponse();
+  }
+
+  async getByLogin(login: string) {
+    const findUser = await this.userRepository.findOne({
+      where: { login },
+    });
+
+    return findUser;
+  }
+
+  async updateLastLogin(id: string, lastUpdatedAt: Date) {
+    const updatedUser = await this.userRepository.findOne({
+      where: { id },
+    });
+    // if (!findUser) {
+    //   throw new NotFoundException('User not found.');
+    // }
+    Object.assign(updatedUser, { lastUpdatedAt });
+
+    return (await this.userRepository.save(updatedUser)).toResponse();
   }
 
   async update(userUniqueId: string, dto: UpdateUserDto) {
