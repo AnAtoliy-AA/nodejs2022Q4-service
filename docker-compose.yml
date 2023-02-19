@@ -1,15 +1,18 @@
 version: '3.7'
 services: 
-  db:
+  postgres:
     image: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     environment: 
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    container_name: postgres-db
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+    container_name: postgres
+    networks:
+      - my-bridge
     volumes:
       - ./pgdata:/var/lib/postgresql/data
   nestjs:
@@ -19,22 +22,29 @@ services:
     image: anatoliy1/nest-and-postgres-application:latest
     environment: 
       - DB_TYPE=${DB_TYPE}
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_HOST=postgres
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
       - POSTGRES_SYNC=false
       - JWT_SECRET=${JWT_SECRET}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - APP_EXPIRES=${APP_EXPIRES}
       - PORT=${PORT}
     ports: 
-      - "4000:4000" # expose-to-the-world : only-in-the-docker
-    container_name: nestjs2022q2
+      - ${PORT}:${PORT} # expose-to-the-world : only-in-the-docker
+    container_name: nestjs2022q4
     depends_on: 
-      - db
+      - postgres
     volumes: 
       - .:/app
       - /app/node_modules
+    networks:
+      - my-bridge
+networks:
+  my-bridge:
+    name: my-bridge
+    driver: bridge
+
 volumes:
-  pgdata:
+  database:
