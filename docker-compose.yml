@@ -1,0 +1,62 @@
+version: '3.7'
+services: 
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment: 
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+    container_name: postgres
+    networks:
+      - my-bridge
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  nestjs:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    image: anatoliy1/nest-and-postgres-application:latest
+    environment: 
+      - DB_TYPE=${DB_TYPE}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_SYNC=false
+      - JWT_SECRET=${JWT_SECRET}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - APP_EXPIRES=${APP_EXPIRES}
+      - PORT=${PORT}
+    ports: 
+      - ${PORT}:${PORT} # expose-to-the-world : only-in-the-docker
+    container_name: nestjs2022q4
+    depends_on: 
+      - postgres
+    networks:
+      - my-bridge
+    volumes: 
+      - .:/app
+      - /app/node_modules
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    networks:
+      - my-bridge
+networks:
+  my-bridge:
+    name: my-bridge
+    driver: bridge
+
+volumes:
+  database:
