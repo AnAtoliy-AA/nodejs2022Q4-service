@@ -10,7 +10,7 @@ import {
   Req,
   HttpCode,
 } from '@nestjs/common';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
@@ -30,13 +30,13 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() body: LoginDto): Promise<string | never> {
+  login(@Body() body: LoginDto): Promise<string | null> {
     return this.service.login(body);
   }
 
   @Post('refresh')
   @UseGuards(JwtAuthGuard)
-  refresh(@Req() { user }: Request): Promise<string | never> {
-    return this.service.refresh(<User>user);
+  refresh(@Body() body: RefreshDto): Promise<string | null> {
+    return this.service.refresh(body);
   }
 }

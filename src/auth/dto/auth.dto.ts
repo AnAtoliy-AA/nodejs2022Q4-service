@@ -17,3 +17,8 @@ export class LoginDto {
   @IsString()
   public readonly password: string;
 }
+
+export class RefreshDto {
+  @IsString()
+  public readonly token: string;
+}

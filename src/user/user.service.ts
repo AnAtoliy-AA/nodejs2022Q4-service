@@ -32,32 +32,31 @@ export class UserService {
       );
     }
 
-    const existingUser = await this.getByLogin(login);
+    // const existingUser = await this.getByLogin(login);
 
-    if (!existingUser) {
-      const id = uuidv4();
-      const version = 1;
-      const createdAt = new Date().getMilliseconds();
-      const updatedAt = new Date().getMilliseconds();
-  
-      const createdUser = this.userRepository.create({
-        id,
-        login,
-        password: this.helper.encodePassword(password),
-        version,
-        createdAt,
-        updatedAt,
-      });
-  
-      return (await this.userRepository.save(createdUser)).toResponse() as User;
-    } else {
+    // if (!existingUser) {
+    const id = uuidv4();
+    const version = 1;
+    const createdAt = new Date().getMilliseconds();
+    const updatedAt = new Date().getMilliseconds();
 
-      throw new HttpException(
-        'User with this login already exists',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const createdUser = this.userRepository.create({
+      id,
+      login,
+      password: this.helper.encodePassword(password),
+      version,
+      createdAt,
+      updatedAt,
+    });
 
+    return (await this.userRepository.save(createdUser)).toResponse() as User;
+    // } else {
+
+    //   throw new HttpException(
+    //     'User with this login already exists',
+    //     HttpStatus.CREATED,
+    //   );
+    // }
   }
 
   async findAll() {
@@ -121,9 +120,13 @@ export class UserService {
     });
 
     if (updatedUser) {
+      // if (
+      //   dto?.oldPassword !== updatedUser?.password ||
+      //   dto?.newPassword === updatedUser?.password
+      // ) {
       if (
-        dto?.oldPassword !== updatedUser?.password ||
-        dto?.newPassword === updatedUser?.password
+        !this.helper.isPasswordValid(dto?.oldPassword, updatedUser?.password) ||
+        this.helper.isPasswordValid(dto?.newPassword, updatedUser?.password)
       ) {
         throw new HttpException(
           'Not correct old password',
@@ -133,7 +136,7 @@ export class UserService {
       const updatedAt = new Date().getMilliseconds();
       Object.assign(
         updatedUser,
-        { password: dto?.newPassword },
+        { password: this.helper.encodePassword(dto?.newPassword) },
         { version: updatedUser?.version + 1 },
         { updatedAt },
       );

@@ -2,7 +2,7 @@ import { User } from './../user/entities/user.entity';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshDto } from './dto/auth.dto';
 import { AuthHelper } from './auth.helper';
 import { UserService } from 'src/user/user.service';
 
@@ -24,7 +24,9 @@ export class AuthService {
     // }
 
     // this.repository.create({ login, password });
-    return await this.usersService.create({ login, password });
+    const user = await this.usersService.create({ login, password });
+
+    return user || null;
   }
 
   public async login(body: LoginDto): Promise<string | never> {
@@ -51,11 +53,22 @@ export class AuthService {
     return this.helper.generateToken(user);
   }
 
-  public async refresh(user: User): Promise<string> {
-    // this.repository.update(user.id, { lastLoginAt: new Date() });
-    const lastLoginAt = new Date();
-    this.usersService.updateLastLogin(user.id, lastLoginAt);
+  public async refresh(dto: RefreshDto): Promise<string | null> {
+    const { token } = dto;
 
-    return this.helper.generateToken(user);
+    const decoded = (await this.helper.decode(token)) as User;
+
+    if (decoded) {
+      // this.repository.update(user.id, { lastLoginAt: new Date() });
+
+      if (decoded.hasOwnProperty('id')) {
+        const lastLoginAt = new Date();
+        this.usersService.updateLastLogin(decoded?.id, lastLoginAt);
+
+        return this.helper.generateToken(decoded);
+      }
+    }
+
+    return null;
   }
 }
