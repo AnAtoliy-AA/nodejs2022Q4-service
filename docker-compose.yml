@@ -11,6 +11,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DATABASE=${POSTGRES_DATABASE}
     container_name: postgres
+    networks:
+      - my-bridge
     volumes:
       - ./pgdata:/var/lib/postgresql/data
   nestjs:
@@ -34,6 +36,8 @@ services:
     container_name: nestjs2022q4
     depends_on: 
       - postgres
+    networks:
+      - my-bridge
     volumes: 
       - .:/app
       - /app/node_modules
@@ -47,3 +51,12 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
+    networks:
+      - my-bridge
+networks:
+  my-bridge:
+    name: my-bridge
+    driver: bridge
+
+volumes:
+  database:

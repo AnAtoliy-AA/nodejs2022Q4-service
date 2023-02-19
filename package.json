@@ -19,9 +19,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "docker:compose": "docker-compose up --build",
-    "docker:build": "docker build -t anatoliy1/nodejs2022q4-service",
-    "docker:push": "docker push anatoliy1/nodejs2022q4-service",
+    "docker:compose": "docker-compose up",
+    "docker:build": "docker build -t anatoliy1/nest-and-postgres-application",
+    "docker:push": "docker push anatoliy1/nest-and-postgres-application",
+    "docker:scan": "docker scan anatoliy1/nest-and-postgres-application",
     "typeorm": "npm run build && npx typeorm -d dist/migration.config.js",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:create": "npm run typeorm -- migration:create",
@@ -29,7 +30,6 @@
     "migration:down": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
-    "@hapi/joi": "^17.1.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
@@ -49,9 +49,9 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.5.0",
+    "typeorm": "^0.3.7",
     "uuid": "^8.3.2",
-    "yamljs": "^0.3.0",
-    "typeorm": "^0.3.7"
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

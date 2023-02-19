@@ -1,4 +1,3 @@
-
 FROM node:18.14-alpine
 
 # Docker working directory
@@ -8,7 +7,10 @@ WORKDIR /app
 COPY ./package.json ./package-lock.json /app/
 
 # Then install the NPM module
-RUN npm install
+RUN npm ci --legacy-peer-deps
+
+COPY . .
+RUN npm run build
 
 COPY . .
 RUN npm run build
@@ -16,5 +18,5 @@ RUN npm run build
 # Copy current directory to APP folder
 COPY . /app/
 
-EXPOSE 4000
+EXPOSE ${PORT}
 CMD ["npm", "run", "start:dev"]
