@@ -7,15 +7,14 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   UseGuards,
-  Req,
   HttpCode,
 } from '@nestjs/common';
 import { RegisterDto, LoginDto, RefreshDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { StatusCodes } from 'http-status-codes';
+import { Auth } from './entities/auth.entity';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -30,13 +29,13 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() body: LoginDto): Promise<string | null> {
+  login(@Body() body: LoginDto): Promise<Auth | null> {
     return this.service.login(body);
   }
 
   @Post('refresh')
   @UseGuards(JwtAuthGuard)
-  refresh(@Body() body: RefreshDto): Promise<string | null> {
+  refresh(@Body() body: RefreshDto): Promise<Auth | null> {
     return this.service.refresh(body);
   }
 }

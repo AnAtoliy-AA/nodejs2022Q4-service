@@ -1,10 +1,9 @@
 import { User } from './../user/entities/user.entity';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { RegisterDto, LoginDto, RefreshDto } from './dto/auth.dto';
 import { AuthHelper } from './auth.helper';
 import { UserService } from 'src/user/user.service';
+import { Auth } from './entities/auth.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,21 +14,13 @@ export class AuthService {
 
   public async register(body: RegisterDto): Promise<User | null> {
     const { login, password }: RegisterDto = body;
-    // const user: User = await this.usersService.findOne({
-    //   where: { login },
-    // });
 
-    // if (user) {
-    //   throw new HttpException('Conflict', HttpStatus.CONFLICT);
-    // }
-
-    // this.repository.create({ login, password });
     const user = await this.usersService.create({ login, password });
 
     return user || null;
   }
 
-  public async login(body: LoginDto): Promise<string | never> {
+  public async login(body: LoginDto): Promise<Auth | null> {
     const { login, password }: LoginDto = body;
     const user: User = await this.usersService.getByLogin(login);
 
@@ -53,20 +44,16 @@ export class AuthService {
     return this.helper.generateToken(user);
   }
 
-  public async refresh(dto: RefreshDto): Promise<string | null> {
+  public async refresh(dto: RefreshDto): Promise<Auth | null> {
     const { token } = dto;
 
     const decoded = (await this.helper.decode(token)) as User;
 
-    if (decoded) {
-      // this.repository.update(user.id, { lastLoginAt: new Date() });
+    if (decoded && decoded.hasOwnProperty('id')) {
+      const lastLoginAt = new Date();
+      this.usersService.updateLastLogin(decoded?.id, lastLoginAt);
 
-      if (decoded.hasOwnProperty('id')) {
-        const lastLoginAt = new Date();
-        this.usersService.updateLastLogin(decoded?.id, lastLoginAt);
-
-        return this.helper.generateToken(decoded);
-      }
+      return this.helper.generateToken(decoded);
     }
 
     return null;

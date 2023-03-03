@@ -21,7 +21,7 @@ export class AlbumService {
   async create(dto: CreateAlbumDto) {
     const { name, artistId, year } = dto;
 
-    if (!name) {
+    if (typeof name !== 'string' || typeof year !== 'number') {
       throw new HttpException('Empty required fields', HttpStatus.BAD_REQUEST);
     }
 

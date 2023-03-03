@@ -21,7 +21,7 @@ export class ArtistService {
   async create(dto: CreateArtistDto) {
     const { name, grammy } = dto;
 
-    if (!name) {
+    if (typeof name !== 'string' || typeof grammy !== 'boolean') {
       throw new HttpException('Empty required fields', HttpStatus.BAD_REQUEST);
     }
 
