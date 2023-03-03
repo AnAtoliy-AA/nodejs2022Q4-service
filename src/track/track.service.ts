@@ -21,7 +21,7 @@ export class TrackService {
   async create(dto: CreateTrackDto) {
     const { name, artistId, albumId, duration } = dto;
 
-    if (!name) {
+    if (typeof name !== 'string' || typeof duration !== 'number') {
       throw new HttpException('Empty required fields', HttpStatus.BAD_REQUEST);
     }
 
