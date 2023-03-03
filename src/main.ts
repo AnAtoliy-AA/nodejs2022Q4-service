@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import * as YAML from 'yamljs';
 import * as dotenv from 'dotenv';
 import 'reflect-metadata';
-import { MyLogger } from './logger.service';
+import { MyLogger } from './logger/logger.service';
 
 dotenv.config();
 
@@ -16,7 +16,6 @@ async function bootstrap() {
 
   app.useLogger(app.get(MyLogger));
 
-  app.setGlobalPrefix('api');
   console.log('Port running on: ', port);
 
   const document = YAML.load('doc/api.yaml');
